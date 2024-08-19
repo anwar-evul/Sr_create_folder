@@ -1,0 +1,60 @@
+
+
+import pandas as pd 
+import numpy as np
+import sys
+from datetime import date
+from datetime import date,datetime,timedelta
+import datetime as dt
+from openpyxl import Workbook
+from openpyxl import load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+import os , glob 
+from dateutil.relativedelta import relativedelta
+Year = date.today().strftime('%Y')
+Month = date.today().strftime('%m. %b %Y')
+tgl = date.today().strftime('%Y-%m-%d')
+
+yesterday = date.today() - timedelta(1)
+Month1 = yesterday - relativedelta(months=1)
+Month2 = yesterday - relativedelta(months=2)
+
+exyesterday = date.today().strftime('%Y%m%d') + yesterday.strftime(' - %b %Y')
+exMonth1 = (date.today()- relativedelta(months=1)).strftime('%Y%m%d') + Month1.strftime(' - %b %Y')
+exMonth2 = (date.today()- relativedelta(months=2)).strftime('%Y%m%d') + Month2.strftime(' - %b %Y')
+
+#%% Create Folder
+mypath = r'C:\Users\cctrmis\DBS Bank Ltd\IDCCTR - Transformation Team - 00. MIS DATA SOURCE\01. SR DATA\\' + Year + '\\' + Month + '\\' + tgl
+if not os.path.isdir(mypath):
+       os.makedirs(mypath)
+   
+#%%
+try:
+    sr1 = pd.read_pickle(r'\\10.232.27.11\cctr$\Report\00. Data Source\01_SR\SR_'+yesterday.strftime("%b%y")+'.pkl',compression="zip") 
+    sr2 = pd.read_pickle(r'\\10.232.27.11\cctr$\Report\00. Data Source\01_SR\SR_'+Month1.strftime("%b%y")+'.pkl',compression="zip") 
+    sr3 = pd.read_pickle(r'\\10.232.27.11\cctr$\Report\00. Data Source\01_SR\SR_'+Month2.strftime("%b%y")+'.pkl',compression="zip") 
+except Exception:
+    pass
+#%%
+pth_drop_file = mypath + '\\' + exyesterday +'.xlsx'
+import pandas.io.formats.excel
+pandas.io.formats.excel.ExcelFormatter.header_style = None
+writer = pd.ExcelWriter(pth_drop_file, engine='xlsxwriter')
+sr1.to_excel(writer, sheet_name='Sheet0',index=False)
+writer.close()
+
+#%%
+pth_drop_file = mypath + '\\' + exMonth1 +'.xlsx'
+import pandas.io.formats.excel
+pandas.io.formats.excel.ExcelFormatter.header_style = None
+writer = pd.ExcelWriter(pth_drop_file, engine='xlsxwriter')
+sr2.to_excel(writer, sheet_name='Sheet0',index=False)
+writer.close()
+
+#%%
+pth_drop_file = mypath + '\\' + exMonth2 +'.xlsx'
+import pandas.io.formats.excel
+pandas.io.formats.excel.ExcelFormatter.header_style = None
+writer = pd.ExcelWriter(pth_drop_file, engine='xlsxwriter')
+sr3.to_excel(writer, sheet_name='Sheet0',index=False)
+writer.close()
